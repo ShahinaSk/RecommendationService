@@ -35,7 +35,8 @@ public interface DoctorRepository  extends Neo4jRepository<DoctorDTO, String>{
    @Query("MATCH (d:DoctorDTO)-[r:located_in]-(a:Address{area:{area}}) RETURN d")
    List<DoctorDTO> getDoctorsByLocation(String area);
 
-   @Query("MATCH (s:Specialization{specialization:{specialization}})<-[r:specialized_in]-(d:DoctorDTO)-[r:located_in]->(a:Address{area:{area}}) RETURN d")
+   @Query("MATCH (s:Specialization)<-[r:specialized_in]-(d:DoctorDTO)-[r:located_in]->(a:Address)"+
+           " WHERE s.specialization:{specialization} AND a.area:{area} RETURN d")
    List<DoctorDTO> getDoctorsByLocationAndSpecialization(String area, String specialization);
 
 //   List<DoctorDTO> g

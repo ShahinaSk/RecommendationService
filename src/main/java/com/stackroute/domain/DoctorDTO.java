@@ -16,11 +16,11 @@ public class DoctorDTO {
     @Id
     private String emailId;
     private String name;
-//    private String gender;
+    //    private String gender;
 //    private String phone;
     private String profileImage;
-//    private String qualification;
-//    private String specialization;
+    private String qualification;
+    //    private String specialization;
     private Date practiceStartedDate;
 //    private String clinicName;
 
