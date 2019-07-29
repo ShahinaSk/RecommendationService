@@ -32,14 +32,21 @@ public interface DoctorRepository  extends Neo4jRepository<DoctorDTO, String>{
    @Query("MATCH (d:DoctorDTO) RETURN d")
    List<DoctorDTO> getAll();
 
-   @Query("MATCH (d:DoctorDTO)-[r:located_in]-(a:Address{area:{area}}) RETURN d")
+   @Query("MATCH (d:DoctorDTO)-[r:located_in]-(a:Address) WHERE a.area={area} RETURN d"+
+           " ORDER BY d.noOfAppointments DESC,d.practiceStartedDate")
    List<DoctorDTO> getDoctorsByLocation(String area);
 
-   @Query("MATCH (s:Specialization)<-[r:specialized_in]-(d:DoctorDTO)-[r:located_in]->(a:Address)"+
-           " WHERE s.specialization:{specialization} AND a.area:{area} RETURN d")
+   @Query("MATCH (s:Specialization)<-[:specialized_in]-(d:DoctorDTO)-[:located_in]->(a:Address) "+
+           "WHERE s.specialization={specialization} AND a.area={area} RETURN d " +
+           "ORDER BY d.noOfAppointments DESC,d.practiceStartedDate LIMIT 4")
    List<DoctorDTO> getDoctorsByLocationAndSpecialization(String area, String specialization);
 
-//   List<DoctorDTO> g
+
+   @Query("MATCH (p:Patient)-[:visited]->(d:DoctorDTO)-[:specialized_in]->"+
+           "(s:Specialization)<-[:specialized_in]-(d1:DoctorDTO) WHERE p.emailId={emailId} "+
+           "AND  RETURN d1 ORDER BY d.noOfAppointments DESC,d.practiceStartedDate LIMIT 4")
+   List<DoctorDTO> getDoctorsByLocationAndSpecializationForPatient(String emailId);
+
 
 }
 

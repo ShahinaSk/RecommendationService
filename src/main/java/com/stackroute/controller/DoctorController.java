@@ -61,4 +61,15 @@ public class DoctorController {
     ResponseEntity<?> getDoctorsByArea(@PathVariable String area){
         return new ResponseEntity<>(doctorService.getDoctorsByLocation(area),HttpStatus.OK);
     }
+
+    @GetMapping("doctorsByAreaAndSpe/{area}/{specialization}")
+    ResponseEntity<?> getDoctorsByLocationAndSpecialization(@PathVariable String area, @PathVariable String specialization){
+        return new ResponseEntity<>(doctorService.getDoctorsByLocationAndSpecialization(area, specialization),HttpStatus.OK);
+    }
+
+    @GetMapping("doctorsForPatient/{emailId}")
+    ResponseEntity<?>  getDoctorsByLocationAndSpecializationForPatient(@PathVariable String emailId){
+        return new ResponseEntity<>(doctorService.getDoctorsByLocationAndSpecializationForPatient(emailId),HttpStatus.OK);
+    }
+
 }

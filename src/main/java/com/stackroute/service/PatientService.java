@@ -15,4 +15,5 @@ public interface PatientService {
 
     Patient deleteRelationForPatientAndDoctor(String patientMailId, String docEmailId);
 
+
 }

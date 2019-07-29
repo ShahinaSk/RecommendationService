@@ -3,6 +3,8 @@ package com.stackroute.service;
 import com.stackroute.domain.*;
 import com.stackroute.repository.DoctorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,11 +33,17 @@ public class DoctorServiceImpl implements DoctorService {
         DoctorDTO doctorDTO = new DoctorDTO();
         doctorDTO.setEmailId(doctor.getEmailId());
         doctorDTO.setName(doctor.getName());
+        doctorDTO.setGender(doctor.getGender());
+        doctorDTO.setPhone(doctor.getPhone());
         doctorDTO.setProfileImage(doctor.getProfileImage());
+        doctorDTO.setQualification(doctor.getQualification());
         doctorDTO.setPracticeStartedDate(doctor.getPracticeStartedDate());
+        doctorDTO.setNoOfAppointments(doctor.getDoctorAppointmentList().size());
         doctorDTO = doctorRepository.save(doctorDTO);
+
         Clinic savedClinic = clinicService.save(new Clinic(doctor.getClinicName()));
         Address address = addressService.save(doctor.getAddress());
+
         Specialization specialization = specializationService.save(doctor.getSpecialization());
         doctorDTO = createRelationBetweenDoctorDTOAndAddress(doctorDTO.getEmailId(), address.getPinCode());
         doctorDTO = createRelationBetweenDoctorDTOAndClinic(doctorDTO.getEmailId(), savedClinic.getClinicName());
@@ -45,7 +53,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public String delete(String emailId) {
-        doctorRepository.deleteById(emailId);
+        doctorRepository.deleteNode(emailId);
         return "Deleted Successfully";
     }
 
@@ -54,19 +62,25 @@ public class DoctorServiceImpl implements DoctorService {
 
         Address address = addressService.save(doctor.getAddress());
         Clinic clinic = clinicService.saveClinic(doctor.getClinicName());
-        DoctorDTO doctorDTO1 = doctorRepository.findById(doctor.getEmailId()).get();
-        doctorDTO1 = doctorRepository.deleteRelationShipBetweenDoctorDTOAndClinic(doctorDTO1.getEmailId());
-        doctorDTO1 = doctorRepository.deleteRelationShipBetweenDoctorDTOAndAddress(doctorDTO1.getEmailId());
+        DoctorDTO doctorDTO = doctorRepository.findById(doctor.getEmailId()).get();
+        doctorDTO = doctorRepository.deleteRelationShipBetweenDoctorDTOAndClinic(doctorDTO.getEmailId());
+        doctorDTO = doctorRepository.deleteRelationShipBetweenDoctorDTOAndAddress(doctorDTO.getEmailId());
 
-        doctorDTO1.setName(doctor.getName());
-        doctorDTO1.setProfileImage(doctor.getProfileImage());
-        doctorDTO1.setPracticeStartedDate(doctor.getPracticeStartedDate());
-        doctorDTO1 = doctorRepository.save(doctorDTO1);
+        doctorDTO.setEmailId(doctor.getEmailId());
+        doctorDTO.setName(doctor.getName());
+        doctorDTO.setGender(doctor.getGender());
+        doctorDTO.setPhone(doctor.getPhone());
+        doctorDTO.setProfileImage(doctor.getProfileImage());
+        doctorDTO.setQualification(doctor.getQualification());
+        doctorDTO.setPracticeStartedDate(doctor.getPracticeStartedDate());
+        doctorDTO.setNoOfAppointments(doctor.getDoctorAppointmentList().size());
 
-        doctorDTO1 = doctorRepository.createRelationBetweenDoctorDTOAndClinic(doctorDTO1.getEmailId(), clinic.getClinicName());
-        doctorDTO1 = doctorRepository.createRelationBetweenDoctorDTOAndAddress(doctorDTO1.getEmailId(), address.getPinCode());
+        doctorDTO = doctorRepository.save(doctorDTO);
 
-        return doctorDTO1;
+        doctorDTO = doctorRepository.createRelationBetweenDoctorDTOAndClinic(doctorDTO.getEmailId(), clinic.getClinicName());
+        doctorDTO = doctorRepository.createRelationBetweenDoctorDTOAndAddress(doctorDTO.getEmailId(), address.getPinCode());
+
+        return doctorDTO;
 
     }
 
@@ -110,13 +124,21 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorRepository.getDoctorsByLocation(area);
     }
 
-   /* @KafkaListener(topics = "doctorcredentials",groupId = "Group_Json1",containerFactory = "kafkaListenerContainerFactory1")
+    @Override
+    public List<DoctorDTO> getDoctorsByLocationAndSpecialization(String area, String specialization) {
+        return doctorRepository.getDoctorsByLocationAndSpecialization(area, specialization);
+    }
+
+    @Override
+    public List<DoctorDTO> getDoctorsByLocationAndSpecializationForPatient(String emailId) {
+        return doctorRepository.getDoctorsByLocationAndSpecializationForPatient(emailId);
+    }
+
+    @KafkaListener(topics = "doctorcredentials",groupId = "Group_Json1",containerFactory = "kafkaListenerContainerFactory1")
     public void consumeJson1(@Payload Doctor doctor)
     {
         System.out.println("Consumed doctor"  +doctor.toString());
-        Doc user=new User(doctor.getEmailId(),doctor.getPassword(),doctor.getRole());
-        saveUser(user);
-    }*/
+    }
 }
 
 

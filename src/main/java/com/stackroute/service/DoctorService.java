@@ -31,7 +31,11 @@ public interface DoctorService {
 
     List<DoctorDTO> getDoctorsByLocation(String area);
 
-//    void consumeJson1(Doctor doctor);
+    List<DoctorDTO> getDoctorsByLocationAndSpecialization(String area, String specialization);
+
+    List<DoctorDTO> getDoctorsByLocationAndSpecializationForPatient(String emailId);
+
+    void consumeJson1(Doctor doctor);
 
 
 }
